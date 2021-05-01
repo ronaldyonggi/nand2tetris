@@ -6,13 +6,31 @@
 /**
  * Not gate:
  * out = not in
+
+ Nand truth table:
+ a | b | out
+ -----------
+ 0 | 0 | 1
+ 0 | 1 | 1
+ 1 | 0 | 1
+ 1 | 1 | 0
+
+ Not Truth Table: 
+ a | out
+ -------
+ 0 | 1
+ 1 | 0
+
+ Comparing Nand and Not truth table, Not is basically the same as Nand, but without the 
+ middle entries (a = 0, b =1) and (a=1, b=0). Not can be implemented with Nand using the same input
+ on both ins.
  */
+
 
 CHIP Not {
     IN in;
     OUT out;
 
     PARTS:
-    // Put your code here:
     Nand(a=in, b=in, out=out);
 }
