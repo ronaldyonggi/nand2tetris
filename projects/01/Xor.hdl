@@ -6,6 +6,17 @@
 /**
  * Exclusive-or gate:
  * out = not (a == b)
+
+  Xor truth table:
+  a | b | out | Nand | Or | Nand AND or
+  --------------------------------------
+  0 | 0 | 0   |  1   | 0  |      0 
+  0 | 1 | 1   |  1   | 1  |      1 
+  1 | 0 | 1   |  1   | 1  |      1 
+  1 | 1 | 0   |  0   | 1  |      0 
+
+  Simply And the output of Nand and Or
+
  */
 
 CHIP Xor {
@@ -13,5 +24,7 @@ CHIP Xor {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Nand(a=a, b=b, out=outNand);
+    Or(a=a, b=b, out=outOr);
+    And(a=outNand, b=outOr, out=out);
 }
