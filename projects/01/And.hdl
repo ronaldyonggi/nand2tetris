@@ -7,6 +7,24 @@
  * And gate: 
  * out = 1 if (a == 1 and b == 1)
  *       0 otherwise
+
+ Nand truth table:
+ a | b | out
+ -----------
+ 0 | 0 | 1
+ 0 | 1 | 1
+ 1 | 0 | 1
+ 1 | 1 | 0
+ 
+ And truth table:
+ a | b | out
+ -----------
+ 0 | 0 | 0
+ 0 | 1 | 0
+ 1 | 0 | 0
+ 1 | 1 | 1
+
+ Simply negates the output of a Nand2 gate using a Not.
  */
 
 CHIP And {
@@ -14,5 +32,6 @@ CHIP And {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Nand(a=a, b=b, out=needToNegate);
+    Not(in=needToNegate, out=out);
 }
