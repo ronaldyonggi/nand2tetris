@@ -7,6 +7,75 @@
  * Multiplexor:
  * out = a if sel == 0
  *       b otherwise
+
+ a | b | sel | out
+ ----------- | ----
+ 0 | 0 | 0   |  0
+ 0 | 1 | 0   |  0
+ 1 | 0 | 0   |  1
+ 1 | 1 | 0   |  1
+
+ Focusing on only a and sel, the out can be produced by
+ the result of a AND notSel
+
+with sel = 0
+ a | notSel | a AND notSel
+ ---------------------------
+ 0 | 1      |     0
+ 1 | 1      |     1
+
+with sel = 1
+ a | notSel | a AND notSel
+ ---------------------------
+ 0 | 0      |     0
+ 1 | 0      |     0
+
+ Now let's focus on the case where sel = 1
+
+ a | b | sel | out
+ ----------- | ----
+ 0 | 0 | 1   |  0
+ 0 | 1 | 1   |  1
+ 1 | 0 | 1   |  0
+ 1 | 1 | 1   |  1
+
+ Focusing on only b and sel, the out can be produced by
+ the result of b AND sel
+
+with sel = 0
+ b | sel | b AND sel
+ ---------------------------
+ 0 | 0      |     0
+ 1 | 0      |     0
+
+with sel = 1
+ b | sel | b AND sel
+ ---------------------------
+ 0 | 1      |     0
+ 1 | 1      |     1
+
+ Now we somehow need to combine the result of
+ (a AND notSel) and (b AND sel) to one output. 
+ Let's mix the results table.
+ 
+ with sel = 0
+ a | b | a AND notSel | b AND sel |  OR
+ -------------------------------- | ----
+ 0 | 0 |    0         |    0      |  0
+ 0 | 1 |    0         |    0      |  0
+ 1 | 0 |    1         |    0      |  1
+ 1 | 1 |    1         |    0      |  1
+
+ with sel = 1
+ a | b | a AND notSel | b AND sel |  OR
+ -------------------------------- | ----
+ 0 | 0 |    0         |    0      |  0
+ 0 | 1 |    0         |    1      |  1
+ 1 | 0 |    0         |    0      |  0
+ 1 | 1 |    0         |    1      |  1
+
+ To achieve and end output that matches the mux table, 
+ OR the result of (a AND notSel) and (b AND sel)
  */
 
 CHIP Mux {
@@ -14,5 +83,9 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    Not(in=sel, out=notSel);
+    // a AND notSel
+    And(a=a, b=notSel, out=aANDnotSel);
+    And(a=b, b=sel, out=bANDsel);
+    Or(a=aANDnotSel, b=bANDsel, out=out);
 }
