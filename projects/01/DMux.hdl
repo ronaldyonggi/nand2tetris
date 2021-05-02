@@ -7,6 +7,34 @@
  * Demultiplexor:
  * {a, b} = {in, 0} if sel == 0
  *          {0, in} if sel == 1
+
+
+ sel | in | sel OR in | sel AND in
+ ----------------------------------
+  0  | 0  |     0     |      0
+  0  | 1  |     1     |      0
+  1  | 0  |     1     |      0
+  1  | 1  |     1     |      1
+
+  Above, the result for sel AND in fulfills the requirement
+  for the output of b! 
+
+  However, the sel OR in can't be right for a, since it also
+  outputs 1 when sel is 1 regardless of in.
+
+  Now notice if we negate sel, nSel AND in  is exactly what
+  we want for a.
+
+  nSel | in | nSel AND in
+  -----------------------
+   1   | 0  |     0
+   1   | 1  |     1
+   0   | 0  |     0
+   0   | 1  |     0
+
+   Thus, the correct implementation is to have:
+   1. nSel AND in -> out a
+   2. sel AND in -> out b
  */
 
 CHIP DMux {
@@ -14,5 +42,7 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    // Put your code here:
+    Not(in=sel, out=nSel);
+    And(a=nSel, b=in, out=a);
+    And(a=sel, b=in, out=b);
 }
