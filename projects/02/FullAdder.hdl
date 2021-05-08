@@ -6,6 +6,9 @@
 /**
  * Computes the sum of three bits.
 
+ 1. Sum a + b using half adder -> result is abSum and first Carry
+ 2. Sum abSum + c using half adder -> result is the final sum and second carry
+
  The carry of the first adder and the carry of the second
  adder works as the following:
  1. If both of them are 1, then the carry is 0 (overflow, it goes to sum)
