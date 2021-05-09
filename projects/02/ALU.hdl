@@ -42,5 +42,36 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // zx part
+    Mux16(a=x, b=false, sel=zx, out=zxout); // If zx = 1, then outputs 0
+    // zy part
+    Mux16(a=y, b=false, sel=zy, out=zyout);
+    // nx part
+    Not16(in=zxout, out=notzxout);
+    Mux16(a=zxout, b=notzxout, sel=nx, out=nxout); // if nx = 1, then outputs !zxout
+    // ny part
+    Not16(in=zyout, out=notzyout);
+    Mux16(a=zyout, b=notzyout, sel=ny, out=nyout); 
+    // f part
+    And16(a=nxout, b=nyout, out=andout);
+    Add16(a=nxout, b=nyout, out=addout);
+    Mux16(a=andout, b=addout, sel=f, out=fout);
+    // no part
+    Not16(in=fout, out=notfout);
+    // Separate outputs to 3 outputs:
+    // 1. The ultimate output
+    // 2. The first digit, this is for ng
+    // 3. The first half and the second half of the outputs, these are for zr
+    Mux16(a=fout, b=notfout, sel=no, out=out, out[15] = signdigit, out[0..7]= firsthalfout, out[8..15] = secondhalfout);
+
+    // zr part
+    Or8Way(in=firsthalfout, out=firsthalfzr);
+    Or8Way(in=secondhalfout, out=secondhalfzr);
+    Or(a=firsthalfzr, b=secondhalfzr, out=stillneedtonegatezr);
+    Not(in=stillneedtonegatezr, out=zr);
+
+    // ng part
+    And(a=signdigit, b=true, out=ng);
+
+
 }
