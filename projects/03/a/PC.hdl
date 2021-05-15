@@ -1,0 +1,45 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/PC.hdl
+
+/**
+ * A 16-bit counter with load and reset control bits.
+ * if      (reset[t] == 1) out[t+1] = 0
+ * else if (load[t] == 1)  out[t+1] = in[t]
+ * else if (inc[t] == 1)   out[t+1] = out[t] + 1  (integer addition)
+ * else                    out[t+1] = out[t]
+
+
+ - Reset has the highest authority
+    ~ If reset is 1, regardless everything else, output stays 0
+ - Load has the 2nd highest authority
+    ~ If only load is 1 and everything else is 0, output says in
+    ~ If load = 1 and inc = 1, output stays in
+ - Inc has the least authority
+    ~ If only inc = 1, output increments 1 each clock
+ */
+
+CHIP PC {
+    IN in[16],load,inc,reset;
+    OUT out[16];
+
+    PARTS:
+    /* Since inc has the least authority, put inc in the beginning
+    since we know the output can ultimately be changed by load or
+    reset. */
+    Inc16(in=feedback, out=incremented);
+    Mux16(a=feedback, b=incremented, sel=inc, out=outinc);
+
+    // Load is the 2nd part
+    Mux16(a=outinc, b=in, sel=load, out=outload);
+
+    // Reset is 3rd part
+    Mux16(a=outload, b=false, sel=reset, out=outreset);
+
+    /* Register at the end.
+    Set load to true since the tick tock is always happening.
+    Outputs to 2: out and feedback to the beginning. */
+    Register(in=outreset, load=true, out=out, out=feedback);
+}
+
