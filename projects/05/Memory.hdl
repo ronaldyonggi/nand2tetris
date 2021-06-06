@@ -1,0 +1,46 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/Memory.hdl
+
+/**
+ * The complete address space of the Hack computer's memory,
+ * including RAM and memory-mapped I/O. 
+ * The chip facilitates read and write operations, as follows:
+ *     Read:  out(t) = Memory[address(t)](t)
+ *     Write: if load(t-1) then Memory[address(t-1)](t) = in(t-1)
+ * In words: the chip always outputs the value stored at the memory 
+ * location specified by address. If load==1, the in value is loaded 
+ * into the memory location specified by address. This value becomes 
+ * available through the out output from the next time step onward.
+ * Address space rules:
+ * Only the upper 16K+8K+1 words of the Memory chip are used. 
+ * Access to address>0x6000 is invalid. Access to any address in 
+ * the range 0x4000-0x5FFF results in accessing the screen memory 
+ * map. Access to address 0x6000 results in accessing the keyboard 
+ * memory map. The behavior in these addresses is described in the 
+ * Screen and Keyboard chip specifications given in the book.
+ */
+
+CHIP Memory {
+    IN in[16], load, address[15];
+    OUT out[16];
+
+    PARTS:
+    /* We have 3 possible outputs: From RAM16K, screen or keyboard. We can use DMux to select which output is intended,
+    but there is no DMux3Way, only DMUx4Way. Thus we can set so that both a and b path of DMux4Way are for RAM16K,
+    and later we can join them using Or.
+    Recall DMux4Way has 4 possible outputs, so we can simply use the last 2 digits from address as the selector. */
+    DMux4Way(in=load, sel=address[13..14], a=dmuxram, b=dmuxram2, c=loadscreen, d=loadkbd);
+    Or(a=dmuxram, b=dmuxram2, out=loadram);
+    
+    // Recall RAM16K has 14 address slots
+    RAM16K(in=in, load=loadram, address=address[0..13], out=outram);
+
+    // Screen has 13 address slots
+    Screen(in=in, load=loadscreen, address=address[0..12], out=outscreen);
+    Keyboard(out=outkbd);
+
+    // Finally rejoin the outputs using Mux4Way16
+    Mux4Way16(a=outram, b=outram, c=outscreen, d=outkbd, sel=address[13..14], out=out);
+}
